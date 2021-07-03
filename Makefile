@@ -3,7 +3,7 @@ CC=gcc
 WARNINGS=-Wall -Wstrict-prototypes
 CFLAGS=-O2 $(WARNINGS) -g
 LIBS=-lncurses
-PROGRAM=bmacs
+PROGRAM=bm
 
 SRC=main.c screen.c
 
