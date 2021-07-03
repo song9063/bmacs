@@ -44,17 +44,15 @@ void bm_calc_half_rect_of_window(
     }
 }
 
-
 BM_EDITOR_WINDOW *bm_new_editor_window(const BM_RECT *p_rect, wchar_t *sz_title){
     WINDOW *p_win = newwin(p_rect->h, p_rect->w,
         p_rect->y, p_rect->x);
     //box(p_win, 0, 0);
-    touchwin(p_win);
-    wrefresh(p_win);
 
     BM_EDITOR_WINDOW *p_editor_win = malloc(sizeof(BM_EDITOR_WINDOW));
     p_editor_win->p_win = p_win;
     bm_set_editor_window_title(p_editor_win, sz_title);
+    wrefresh(p_win);
     return p_editor_win;
 }
 
@@ -74,4 +72,5 @@ void bm_set_editor_window_title(BM_EDITOR_WINDOW *p_editor_win, wchar_t *sz_titl
         n_title_len = BM_MAX_WINDOW_TITLE_LENGTH;
     }
     wcsncpy(p_editor_win->sz_title, sz_title, n_title_len);
+    mvwprintw(p_editor_win->p_win, 1, 0, "%ls", p_editor_win->sz_title);
 }
