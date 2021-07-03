@@ -12,12 +12,11 @@ HDRPATH=-I/usr/local/opt/ncurses/include
 
 OBJ=screen.o main.o
 
+$(PROGRAM): $(OBJ)
+	$(CC) -o $@ $(OBJ) $(LIBS)
 
 clean:
 	@rm -f $(PROGRAM) tags lintout *.o
-
-$(PROGRAM): $(OBJ)
-	$(CC) -o $@ $(OBJ) $(LIBS)
 
 tags: ${SRC}
 	@rm -f tags
