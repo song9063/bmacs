@@ -5,7 +5,7 @@
     Bmacs was written by Song Junwoo
     Bmacs (c) Copyright 2021 Song Junwoo
     - busang.song@gmail.com
-    - https://www.github.com/song9063
+    - https://github.com/song9063/bmacs
 
     Bmacs is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
