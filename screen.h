@@ -22,7 +22,7 @@
 #ifndef _BM_BMACS_SCREEN_H_
 #define _BM_BMACS_SCREEN_H_
 
-#define BM_MAX_WINDOW_TITLE_LENGTH 20
+#define BM_WIN_TITLE_MAXLEN 20
 #include <ncurses.h>
 #include <string.h>
 #include <wchar.h>
@@ -34,27 +34,27 @@ typedef struct _BM_RECT {
     int x;
 } BM_RECT;
 
-typedef enum _BM_WINDOW_SPLIT_DIRECTION {
-    BM_WINDOW_SPLIT_VERTICAL = 0,
-    BM_WINDOW_SPLIT_HORIZONTAL
-} BM_WINDOW_SPLIT_DIRECTION;
+typedef enum _BM_WIN_DIR {
+    BM_WIN_DIR_VER = 0, /* Vertical */
+    BM_WIN_DIR_HOR      /* Horizontal */
+} BM_WIN_DIR;
 
-typedef struct _BM_EDITOR_WINDOW {
+typedef struct _BM_WINDOW {
     WINDOW *p_win;
     BM_RECT rect;
-    wchar_t sz_title[BM_MAX_WINDOW_TITLE_LENGTH];
-} BM_EDITOR_WINDOW;
+    wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
+} BM_WINDOW;
 
-void bm_calc_half_rect_of_window(
+void bm_calc_half_winrect(
     WINDOW *p_win, 
-    BM_WINDOW_SPLIT_DIRECTION dir, 
+    BM_WIN_DIR dir, 
     BM_RECT *p_rect_out);
 
-BM_EDITOR_WINDOW *bm_new_editor_window(const BM_RECT *, wchar_t *);
-void bm_destroy_editor_window(BM_EDITOR_WINDOW *);
+BM_WINDOW *bm_newwin(const BM_RECT *, wchar_t *);
+void bm_delwin(BM_WINDOW *);
 
-void bm_set_editor_window_title(BM_EDITOR_WINDOW *, wchar_t *);
+void bm_set_win_title(BM_WINDOW *, wchar_t *);
 
-void bm_split_buffer(BM_WINDOW_SPLIT_DIRECTION);
+void bm_split_buffer(BM_WIN_DIR);
 
 #endif

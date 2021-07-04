@@ -22,9 +22,9 @@
 #include "screen.h"
 #include <stdlib.h>
 
-void bm_calc_half_rect_of_window(
+void bm_calc_half_winrect(
     WINDOW *p_win, 
-    BM_WINDOW_SPLIT_DIRECTION dir, 
+    BM_WIN_DIR dir, 
     BM_RECT *p_rect_out){
     int h=0, w=0;
     int x=0, y=0;
@@ -34,42 +34,45 @@ void bm_calc_half_rect_of_window(
     p_rect_out->x = x;
     p_rect_out->y = y;
 
-    if(dir == BM_WINDOW_SPLIT_VERTICAL){
+    if(dir == BM_WIN_DIR_VER){
         p_rect_out->w = w/2;
         p_rect_out->h = h;
-    }else if(dir == BM_WINDOW_SPLIT_HORIZONTAL){
+    }else if(dir == BM_WIN_DIR_HOR){
         p_rect_out->w = w;
         p_rect_out->h = h/2;
     }
 }
 
-BM_EDITOR_WINDOW *bm_new_editor_window(const BM_RECT *p_rect, wchar_t *sz_title){
+BM_WINDOW *bm_newwin(const BM_RECT *p_rect, wchar_t *sz_title){
     WINDOW *p_win = newwin(p_rect->h, p_rect->w,
         p_rect->y, p_rect->x);
-    //box(p_win, 0, 0);
+    box(p_win, ACS_VLINE, ' ');
 
-    BM_EDITOR_WINDOW *p_editor_win = malloc(sizeof(BM_EDITOR_WINDOW));
+    BM_WINDOW *p_editor_win = malloc(sizeof(BM_WINDOW));
     p_editor_win->p_win = p_win;
-    bm_set_editor_window_title(p_editor_win, sz_title);
+    p_editor_win->rect = *p_rect;
+    bm_set_win_title(p_editor_win, sz_title);
     wrefresh(p_win);
     return p_editor_win;
 }
 
-void bm_destroy_editor_window(BM_EDITOR_WINDOW *p_editor_win){
+void bm_delwin(BM_WINDOW *p_editor_win){
     delwin(p_editor_win->p_win);
     free(p_editor_win);
     p_editor_win = NULL;
 }
 
-void bm_set_editor_window_title(BM_EDITOR_WINDOW *p_editor_win, wchar_t *sz_title){
-    size_t n_title_len = wcslen(sz_title);
-    mvwprintw(p_editor_win->p_win, 10, 1, "Length: %d", n_title_len);
-    memset(p_editor_win->sz_title, 0x00, sizeof(p_editor_win->sz_title));
-    if(n_title_len > (p_editor_win->rect.w-2)){
-        n_title_len = p_editor_win->rect.w-2;
-    }else if(n_title_len > BM_MAX_WINDOW_TITLE_LENGTH){
-        n_title_len = BM_MAX_WINDOW_TITLE_LENGTH;
+void bm_set_win_title(BM_WINDOW *p_editor_win, wchar_t *sz_title){
+    int titlex = 0;
+    size_t len = wcslen(sz_title);
+    memset(p_editor_win->sz_title, 0x00, BM_WIN_TITLE_MAXLEN);
+    if(len > (p_editor_win->rect.w-2)){
+        len = p_editor_win->rect.w-2;
+    }else if(len > BM_WIN_TITLE_MAXLEN){
+        len = BM_WIN_TITLE_MAXLEN;
     }
-    wcsncpy(p_editor_win->sz_title, sz_title, n_title_len);
-    mvwprintw(p_editor_win->p_win, 1, 0, "%ls", p_editor_win->sz_title);
+
+    titlex = (p_editor_win->rect.w-len)/2;
+    wcsncpy(p_editor_win->sz_title, sz_title, len);
+    mvwprintw(p_editor_win->p_win, 0, titlex, "%ls", p_editor_win->sz_title);
 }

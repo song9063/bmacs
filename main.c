@@ -25,8 +25,8 @@
 
 
 int main(int argc, char *argv[]){
-    BM_EDITOR_WINDOW *p_win_left;
-    BM_RECT rect_win_left;
+    BM_WINDOW *p_win_left, *p_win_right;
+    BM_RECT rect;
 
     setlocale(LC_ALL,"");
 
@@ -37,14 +37,15 @@ int main(int argc, char *argv[]){
     keypad(stdscr, TRUE);
     refresh();
 
-    bm_calc_half_rect_of_window(stdscr, 
-        BM_WINDOW_SPLIT_VERTICAL, 
-        &rect_win_left);
-    p_win_left = bm_new_editor_window(&rect_win_left, L"윈도우");
-  
-    mvwprintw(p_win_left->p_win, 0, 0, "Hello Left");
-    mvwprintw(p_win_left->p_win, 1, 0, "%ls", p_win_left->sz_title);
+    bm_calc_half_winrect(stdscr, 
+        BM_WIN_DIR_VER, 
+        &rect);
+    p_win_left = bm_newwin(&rect, L"왼쪽 윈도우");
+    rect.x += rect.w;
+    p_win_right = bm_newwin(&rect, L"오른쪽 윈도우");
     wrefresh(p_win_left->p_win);
+    wrefresh(p_win_right->p_win);
+    
 
 /*
     printw("Screen H: %d, W: %d", LINES, COLS);
@@ -56,7 +57,8 @@ int main(int argc, char *argv[]){
         rect_win_left.x + rect_win_left.w, rect_win_left.y);*/
     
     getch();
-    bm_destroy_editor_window(p_win_left);
+    bm_delwin(p_win_left);
+    bm_delwin(p_win_right);
     endwin();
 
     return 0;
