@@ -17,44 +17,64 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+    along with Bmacs.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _BM_BMACS_SCREEN_H_
 #define _BM_BMACS_SCREEN_H_
 
-#define BM_WIN_TITLE_MAXLEN 20
 #include <ncurses.h>
 #include <string.h>
 #include <wchar.h>
+#include "bmtypes.h"
 
-typedef struct _BM_RECT {
-    int h;
-    int w;
-    int y;
-    int x;
-} BM_RECT;
+/* Max length of title string */
+#define BM_WIN_TITLE_MAXLEN 20
 
-typedef enum _BM_WIN_DIR {
-    BM_WIN_DIR_VER = 0, /* Vertical */
-    BM_WIN_DIR_HOR      /* Horizontal */
-} BM_WIN_DIR;
+/* 
+    Minimum size of Editor 
+    - Bottom status bar: 1 lines
+    - Code editor: 2 lines, 4 columns
+    - Right vetical line: 1 columns
+*/
+#define BM_EDITOR_WIN_MIN_W 5
+#define BM_EDITOR_WIN_MIN_H 3
+
+typedef enum _BM_WIN_SPLIT_DIR {
+    BM_WIN_SPLIT_DIR_VER = 0, /* Vertical */
+    BM_WIN_SPLIT_DIR_HOR      /* Horizontal */
+} BM_WIN_SPLIT_DIR;
+
 
 typedef struct _BM_WINDOW {
     WINDOW *p_win;
     BM_RECT rect;
     wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
+
+    /* Minimum size */
+    BM_SIZE min_size;
+
+    WINDOW *p_child;
 } BM_WINDOW;
 
+/*
 void bm_calc_half_winrect(
     WINDOW *p_win, 
-    BM_WIN_DIR dir, 
-    BM_RECT *p_rect_out);
+    BM_WIN_SPLIT_DIR dir, 
+    BM_RECT *p_rect_out
+);
+*/
 
-BM_WINDOW *bm_newwin(const BM_RECT *, wchar_t *);
+/* Window */
+BM_WINDOW *bm_newwin(const BM_RECT, const wchar_t *, const BM_SIZE); /* Normal window */
+BM_WINDOW *bm_newwin_editor(const BM_RECT, const wchar_t *);
 void bm_delwin(BM_WINDOW *);
+void bm_set_win_title(BM_WINDOW *, const wchar_t *);
 
-void bm_set_win_title(BM_WINDOW *, wchar_t *);
+void bm_renderwin(BM_WINDOW *);
 
-void bm_split_buffer(BM_WIN_DIR);
+/* Resize, Move */
+int bm_mvwin(BM_WINDOW *, const int newy, const int newx);
+int bm_resizewin(BM_WINDOW *, const int newh, const int neww);
+int bm_splitwin(BM_WINDOW *, const BM_WIN_SPLIT_DIR);
 
 #endif

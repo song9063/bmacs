@@ -19,38 +19,25 @@
     You should have received a copy of the GNU General Public License
     along with Bmacs.  If not, see <https://www.gnu.org/licenses/>.
 */
-#include "screen.h"
+#ifndef _BM_BMACS_TYPES_H_
+#define _BM_BMACS_TYPES_H_
+
 #include <ncurses.h>
-#include <locale.h>
+
+typedef struct _BM_POS {
+    int y;
+    int x;
+} BM_POS;
+
+typedef struct _BM_SIZE {
+    int h;
+    int w;
+} BM_SIZE;
+
+typedef struct _BM_RECT {
+    BM_POS pos;
+    BM_SIZE size;
+} BM_RECT;
 
 
-int main(int argc, char *argv[]){
-    BM_WINDOW *p_win_root;
-    BM_RECT rect_root;
-
-    setlocale(LC_ALL,"");
-
-    initscr();
-    clear();
-    noecho();
-    cbreak();
-    keypad(stdscr, TRUE);
-    refresh();
-
-    /* Root Window */
-    getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
-    getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
-    p_win_root = bm_newwin_editor(rect_root, L"Root");
-    bm_renderwin(p_win_root);
-
-    getch();
-    bm_mvwin(p_win_root, 0, 0);
-    bm_resizewin(p_win_root, LINES, 40);
-    bm_renderwin(p_win_root);
-    
-    getch();
-    bm_delwin(p_win_root);
-    endwin();
-
-    return 0;
-}
+#endif
