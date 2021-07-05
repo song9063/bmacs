@@ -50,20 +50,15 @@ void bm_renderwin_frame(BM_WINDOW *p_bmwin);
 
 
 /* Public functions */
-BM_WINDOW *bm_newwin(BM_WINDOW *p_parent,
+BM_WINDOW *bm_newwin(
     const BM_WIN_TYPE wint,
     const BM_RECT rect, 
     const wchar_t *sz_title, 
     const BM_SIZE min_size){
     WINDOW *p_win;
     BM_WINDOW *p_bmwin;
-    if(p_parent != NULL && p_parent->p_next != NULL){
-        return NULL;
-    }
-
     p_win = newwin(rect.size.h, rect.size.w,
         rect.pos.y, rect.pos.x);
-
     p_bmwin = malloc(sizeof(BM_WINDOW));
     p_bmwin->p_win = p_win;
     p_bmwin->rect = rect;
@@ -71,25 +66,57 @@ BM_WINDOW *bm_newwin(BM_WINDOW *p_parent,
     p_bmwin->wintype = wint;
     bm_setwin_title(p_bmwin, sz_title);
 
-    p_bmwin->p_prev = p_parent;
-    p_bmwin->p_next = NULL;
-    if(p_parent != NULL){
-        p_parent->p_next = p_bmwin;
-    }
-
     return p_bmwin;
 }
 
-BM_WINDOW *bm_newwin_editor(BM_WINDOW *p_parent, const BM_RECT rect, const wchar_t *sz_title){
+BM_WINDOW *bm_newwin_editor(const BM_RECT rect, const wchar_t *sz_title){
     BM_SIZE min_size;
     min_size.w = BM_EDITOR_WIN_MIN_W;
     min_size.h = BM_EDITOR_WIN_MIN_H;
-    return bm_newwin(p_parent, BM_WIN_TYPE_EDITOR, rect, sz_title, min_size);
+    return bm_newwin(BM_WIN_TYPE_EDITOR, rect, sz_title, min_size);
+}
+
+int bm_addsubwin(
+    BM_WINDOW *p_parent, BM_WINDOW *p_sub, 
+    const BM_WIN_SPLIT_DIR dir){
+    BM_RECT prect, srect;
+    BM_WINDOW *p_old_next = p_parent->p_next;
+
+    /* test windows size */
+    if(bm_canaddwin(p_parent, p_sub, dir) != OK){
+        return ERR;
+    }
+    
+    /* Estimate size */
+    bm_calc_splitsize(p_parent, &prect, p_sub, &srect, dir);
+
+    /* resize windows */
+    if(bm_resizewin(p_parent, prect.size.h, prect.size.w) != OK){
+        return ERR;
+    }
+    if(bm_resizewin(p_sub, srect.size.h, srect.size.w) != OK){
+        return ERR;
+    }
+
+    /* move windows */
+    if(bm_mvwin(p_sub, srect.pos.y, srect.pos.x) != OK){
+        return ERR;
+    }
+
+    if(p_old_next != NULL){
+        p_old_next->p_prev = p_sub;
+    }
+    p_parent->p_next = p_sub;
+    p_sub->p_prev = p_parent;
+    p_sub->p_next = p_old_next;
+    return OK;
 }
 
 void bm_delwin(BM_WINDOW *p_bmwin){
     if(p_bmwin->p_next != NULL){
         p_bmwin->p_next->p_prev = p_bmwin->p_prev;
+    }
+    if(p_bmwin->p_prev != NULL){
         p_bmwin->p_prev->p_next = p_bmwin->p_next;
     }
 
@@ -137,7 +164,11 @@ int bm_mvwin(BM_WINDOW *p_bmwin, const int newy, const int newx){
     return ret;
 }
 int bm_resizewin(BM_WINDOW *p_bmwin, const int newh, const int neww){
-    int ret=0;
+    int ret = ERR;
+    if(p_bmwin->min_size.h > newh || p_bmwin->min_size.w > neww){
+        return ERR;
+    }
+
     ret = wresize(p_bmwin->p_win, newh, neww);
     if(ret == OK){
         p_bmwin->rect.size.w = neww;
@@ -146,10 +177,67 @@ int bm_resizewin(BM_WINDOW *p_bmwin, const int newh, const int neww){
     return ret;
 }
 
-int bm_splitwin(BM_WINDOW *p_win_parent, const BM_WIN_SPLIT_DIR dir){
-    /*
-    BM_RECT rect_p, rect_c;
-    BM_WINDOW p_win_child;
-    */
+/* test size 
+(parent.min_size+sub.min_size) > parent.size */
+int bm_canaddwin(
+    BM_WINDOW *p_parent, BM_WINDOW *p_sub, 
+    const BM_WIN_SPLIT_DIR dir){
+    int pmin, smin, psize;
+
+    if(dir == BM_WIN_SPLIT_DIR_HOR){
+        pmin = p_parent->min_size.w;
+        smin = p_sub->min_size.w;
+        psize = p_parent->rect.size.w;
+    }else{
+        pmin = p_parent->min_size.h;
+        smin = p_sub->min_size.h;
+        psize = p_parent->rect.size.h;
+    }
+    if((pmin+smin)>psize){
+        return ERR;
+    }
     return OK;
 }
+
+void bm_calc_splitsize(const BM_WINDOW *p_parent, BM_RECT *p_prect, 
+    const BM_WINDOW *p_sub, BM_RECT *p_srect,
+    const BM_WIN_SPLIT_DIR dir){
+    int phalf;
+    int poldh, poldw;
+
+    p_prect->pos = p_parent->rect.pos;
+    poldh = p_parent->rect.size.h;
+    poldw = p_parent->rect.size.w;
+    if(dir == BM_WIN_SPLIT_DIR_HOR){
+        p_prect->size.h = poldh;
+        p_srect->size.h = poldh;
+        phalf = poldw/2;
+        if(phalf >= p_parent->min_size.w && phalf >= p_sub->min_size.w){
+            p_srect->size.w = phalf;
+            p_prect->size.w = poldw - phalf;
+        }else{
+            p_prect->size.w = p_parent->min_size.w;
+            p_srect->size.w = p_sub->min_size.w;
+        }
+        p_srect->pos.x = p_prect->size.w;
+        p_srect->pos.y = p_parent->rect.pos.y;
+
+    }else{
+        p_prect->size.w = poldw;
+        p_srect->size.w = poldw;
+        phalf = poldh/2;
+        if(phalf >= p_parent->min_size.h && phalf >= p_sub->min_size.h){
+            p_srect->size.h = phalf;
+            p_prect->size.h = poldh - phalf;
+        }else{
+            p_prect->size.h = p_parent->min_size.h;
+            p_srect->size.h = p_sub->min_size.h;
+        }
+        p_srect->pos.x = p_parent->rect.pos.x;
+        p_srect->pos.y = p_prect->size.h;
+    }
+}
+int bm_test_winsize(BM_WINDOW *p_bmwin, const int h, const int w){
+    return (p_bmwin->min_size.h <= h && p_bmwin->min_size.w <= w);
+}
+

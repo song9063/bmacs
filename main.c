@@ -23,10 +23,13 @@
 #include <ncurses.h>
 #include <locale.h>
 
-
 int main(int argc, char *argv[]){
     BM_WINDOW *p_win_root;
     BM_RECT rect_root;
+    int ret;
+
+    BM_WINDOW *p_win_right;
+    BM_WINDOW *p_win_rightbottom;
 
     setlocale(LC_ALL,"");
 
@@ -40,16 +43,34 @@ int main(int argc, char *argv[]){
     /* Root Window */
     getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
     getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
-    p_win_root = bm_newwin_editor(NULL, rect_root, L"Root");
+    p_win_root = bm_newwin_editor(rect_root, L"Root");
     bm_renderwin(p_win_root);
+    getch();
+
+    p_win_right = bm_newwin_editor(rect_root, L"Sub");
+    ret = bm_addsubwin(p_win_root, p_win_right, BM_WIN_SPLIT_DIR_HOR);
+    bm_renderwin(p_win_root);
+    bm_renderwin(p_win_right);
+    getch();
+
+    p_win_rightbottom = bm_newwin_editor(rect_root, L"BottomRight");
+    ret = bm_addsubwin(p_win_right, p_win_rightbottom, BM_WIN_SPLIT_DIR_VER);
+    bm_renderwin(p_win_rightbottom);
+    bm_renderwin(p_win_right);
 
     getch();
+
+/*
     bm_mvwin(p_win_root, 0, 0);
-    bm_resizewin(p_win_root, LINES, 40);
+    ret = bm_resizewin(p_win_root, LINES, 16);
+    mvwprintw(p_win_root->p_win, 1, 1, "Ret: %d", ret);
     bm_renderwin(p_win_root);
-    
-    getch();
+    getch();*/
+
+
     bm_delwin(p_win_root);
+    bm_delwin(p_win_right);
+    bm_delwin(p_win_rightbottom);
     endwin();
 
     return 0;

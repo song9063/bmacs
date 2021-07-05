@@ -40,4 +40,10 @@ typedef struct _BM_RECT {
 } BM_RECT;
 
 
+typedef enum _BM_WIN_TYPE {
+    BM_WIN_TYPE_EDITOR = 0, /* Editor */
+    BM_WIN_TYPE_TEXTLIST,
+    BM_WIN_TYPE_TERMINAL
+} BM_WIN_TYPE;
+
 #endif
