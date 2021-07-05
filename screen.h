@@ -78,7 +78,7 @@ BM_WINDOW *bm_newwin(BM_WINDOW *,
 BM_WINDOW *bm_newwin_editor(BM_WINDOW *, const BM_RECT, const wchar_t *);
 void bm_delwin(BM_WINDOW *);
 
-void bm_win_settitle(BM_WINDOW *, const wchar_t *);
+void bm_setwin_title(BM_WINDOW *, const wchar_t *);
 
 void bm_renderwin(BM_WINDOW *);
 

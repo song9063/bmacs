@@ -45,8 +45,13 @@ void bm_calc_half_winrect(
 }
 */
 
+/* Private functions */
+void bm_renderwin_frame(BM_WINDOW *p_bmwin);
+
+
+/* Public functions */
 BM_WINDOW *bm_newwin(BM_WINDOW *p_parent,
-    const BM_WIN_TYPE win_t,
+    const BM_WIN_TYPE wint,
     const BM_RECT rect, 
     const wchar_t *sz_title, 
     const BM_SIZE min_size){
@@ -63,8 +68,8 @@ BM_WINDOW *bm_newwin(BM_WINDOW *p_parent,
     p_bmwin->p_win = p_win;
     p_bmwin->rect = rect;
     p_bmwin->min_size = min_size;
-    p_bmwin->wintype = win_t;
-    bm_win_settitle(p_bmwin, sz_title);
+    p_bmwin->wintype = wint;
+    bm_setwin_title(p_bmwin, sz_title);
 
     p_bmwin->p_prev = p_parent;
     p_bmwin->p_next = NULL;
@@ -93,7 +98,7 @@ void bm_delwin(BM_WINDOW *p_bmwin){
     p_bmwin = NULL;
 }
 
-void bm_win_settitle(BM_WINDOW *p_bmwin, const wchar_t *sz_title){
+void bm_setwin_title(BM_WINDOW *p_bmwin, const wchar_t *sz_title){
     size_t len = wcslen(sz_title);
     memset(p_bmwin->sz_title, 0x00, BM_WIN_TITLE_MAXLEN);
     if(len > (p_bmwin->rect.size.w-2)){
@@ -106,16 +111,18 @@ void bm_win_settitle(BM_WINDOW *p_bmwin, const wchar_t *sz_title){
 }
 
 void bm_renderwin(BM_WINDOW *p_bmwin){
+    bm_renderwin_frame(p_bmwin);
+
+    wrefresh(p_bmwin->p_win);
+}
+
+void bm_renderwin_frame(BM_WINDOW *p_bmwin){
     size_t len;
     int title_x;
     len = wcslen(p_bmwin->sz_title);
     title_x = (p_bmwin->rect.size.w-len)/2;
-
     box(p_bmwin->p_win, 0 ,0);
-
-    /* title */
     mvwprintw(p_bmwin->p_win, 0, title_x, "%ls", p_bmwin->sz_title);
-    wrefresh(p_bmwin->p_win);
 }
 
 
