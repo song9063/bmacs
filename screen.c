@@ -45,79 +45,96 @@ void bm_calc_half_winrect(
 }
 */
 
-BM_WINDOW *bm_newwin(const BM_RECT rect, 
+BM_WINDOW *bm_newwin(BM_WINDOW *p_parent,
+    const BM_WIN_TYPE win_t,
+    const BM_RECT rect, 
     const wchar_t *sz_title, 
     const BM_SIZE min_size){
-    WINDOW *p_win = newwin(rect.size.h, rect.size.w,
+    WINDOW *p_win;
+    BM_WINDOW *p_bmwin;
+    if(p_parent != NULL && p_parent->p_next != NULL){
+        return NULL;
+    }
+
+    p_win = newwin(rect.size.h, rect.size.w,
         rect.pos.y, rect.pos.x);
 
-    BM_WINDOW *p_editor_win = malloc(sizeof(BM_WINDOW));
-    p_editor_win->p_win = p_win;
-    p_editor_win->rect = rect;
-    p_editor_win->min_size = min_size;
-    bm_set_win_title(p_editor_win, sz_title);
+    p_bmwin = malloc(sizeof(BM_WINDOW));
+    p_bmwin->p_win = p_win;
+    p_bmwin->rect = rect;
+    p_bmwin->min_size = min_size;
+    p_bmwin->wintype = win_t;
+    bm_win_settitle(p_bmwin, sz_title);
 
-    /* Init child */
-    p_editor_win->p_child = NULL;
+    p_bmwin->p_prev = p_parent;
+    p_bmwin->p_next = NULL;
+    if(p_parent != NULL){
+        p_parent->p_next = p_bmwin;
+    }
 
-    return p_editor_win;
+    return p_bmwin;
 }
 
-BM_WINDOW *bm_newwin_editor(const BM_RECT rect, const wchar_t *sz_title){
+BM_WINDOW *bm_newwin_editor(BM_WINDOW *p_parent, const BM_RECT rect, const wchar_t *sz_title){
     BM_SIZE min_size;
     min_size.w = BM_EDITOR_WIN_MIN_W;
     min_size.h = BM_EDITOR_WIN_MIN_H;
-    return bm_newwin(rect, sz_title, min_size);
+    return bm_newwin(p_parent, BM_WIN_TYPE_EDITOR, rect, sz_title, min_size);
 }
 
-void bm_delwin(BM_WINDOW *p_editor_win){
-    delwin(p_editor_win->p_win);
-    free(p_editor_win);
-    p_editor_win = NULL;
+void bm_delwin(BM_WINDOW *p_bmwin){
+    if(p_bmwin->p_next != NULL){
+        p_bmwin->p_next->p_prev = p_bmwin->p_prev;
+        p_bmwin->p_prev->p_next = p_bmwin->p_next;
+    }
+
+    delwin(p_bmwin->p_win);
+    free(p_bmwin);
+    p_bmwin = NULL;
 }
 
-void bm_set_win_title(BM_WINDOW *p_editor_win, const wchar_t *sz_title){
+void bm_win_settitle(BM_WINDOW *p_bmwin, const wchar_t *sz_title){
     size_t len = wcslen(sz_title);
-    memset(p_editor_win->sz_title, 0x00, BM_WIN_TITLE_MAXLEN);
-    if(len > (p_editor_win->rect.size.w-2)){
-        len = p_editor_win->rect.size.w-2;
+    memset(p_bmwin->sz_title, 0x00, BM_WIN_TITLE_MAXLEN);
+    if(len > (p_bmwin->rect.size.w-2)){
+        len = p_bmwin->rect.size.w-2;
     }else if(len > BM_WIN_TITLE_MAXLEN){
         len = BM_WIN_TITLE_MAXLEN;
     }
 
-    wcsncpy(p_editor_win->sz_title, sz_title, len);
+    wcsncpy(p_bmwin->sz_title, sz_title, len);
 }
 
-void bm_renderwin(BM_WINDOW *p_win){
+void bm_renderwin(BM_WINDOW *p_bmwin){
     size_t len;
     int title_x;
-    len = wcslen(p_win->sz_title);
-    title_x = (p_win->rect.size.w-len)/2;
+    len = wcslen(p_bmwin->sz_title);
+    title_x = (p_bmwin->rect.size.w-len)/2;
 
-    box(p_win->p_win, 0 ,0);
+    box(p_bmwin->p_win, 0 ,0);
 
     /* title */
-    mvwprintw(p_win->p_win, 0, title_x, "%ls", p_win->sz_title);
-    wrefresh(p_win->p_win);
+    mvwprintw(p_bmwin->p_win, 0, title_x, "%ls", p_bmwin->sz_title);
+    wrefresh(p_bmwin->p_win);
 }
 
 
 /* Resize, Move */
-int bm_mvwin(BM_WINDOW *p_win, const int newy, const int newx){
+int bm_mvwin(BM_WINDOW *p_bmwin, const int newy, const int newx){
     int ret=0;
-    ret = mvwin(p_win->p_win, newy, newx);
+    ret = mvwin(p_bmwin->p_win, newy, newx);
     if(ret == OK){
-        p_win->rect.pos.x = newx;
-        p_win->rect.pos.y = newy;
+        p_bmwin->rect.pos.x = newx;
+        p_bmwin->rect.pos.y = newy;
     }
     return ret;
 }
-int bm_resizewin(BM_WINDOW *p_win, const int newh, const int neww){
+int bm_resizewin(BM_WINDOW *p_bmwin, const int newh, const int neww){
     int ret=0;
-    ret = wresize(p_win->p_win, newh, neww);
+    ret = wresize(p_bmwin->p_win, newh, neww);
     if(ret == OK){
-        p_win->rect.size.w = neww;
-        p_win->rect.size.h = newh;
+        p_bmwin->rect.size.w = neww;
+        p_bmwin->rect.size.h = newh;
     }
     return ret;
 }

@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
     /* Root Window */
     getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
     getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
-    p_win_root = bm_newwin_editor(rect_root, L"Root");
+    p_win_root = bm_newwin_editor(NULL, rect_root, L"Root");
     bm_renderwin(p_win_root);
 
     getch();

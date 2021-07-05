@@ -44,16 +44,23 @@ typedef enum _BM_WIN_SPLIT_DIR {
     BM_WIN_SPLIT_DIR_HOR      /* Horizontal */
 } BM_WIN_SPLIT_DIR;
 
+typedef enum _BM_WIN_TYPE {
+    BM_WIN_TYPE_EDITOR = 0, /* Editor */
+    BM_WIN_TYPE_TEXTLIST,
+    BM_WIN_TYPE_TERMINAL
+} BM_WIN_TYPE;
+
 
 typedef struct _BM_WINDOW {
+    BM_WIN_TYPE wintype;
+
     WINDOW *p_win;
     BM_RECT rect;
+    BM_SIZE min_size;
     wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
 
-    /* Minimum size */
-    BM_SIZE min_size;
-
-    WINDOW *p_child;
+    struct _BM_WINDOW *p_prev;
+    struct _BM_WINDOW *p_next;
 } BM_WINDOW;
 
 /*
@@ -65,10 +72,13 @@ void bm_calc_half_winrect(
 */
 
 /* Window */
-BM_WINDOW *bm_newwin(const BM_RECT, const wchar_t *, const BM_SIZE); /* Normal window */
-BM_WINDOW *bm_newwin_editor(const BM_RECT, const wchar_t *);
+BM_WINDOW *bm_newwin(BM_WINDOW *, 
+    const BM_WIN_TYPE, const BM_RECT, 
+    const wchar_t *, const BM_SIZE); /* Normal window */
+BM_WINDOW *bm_newwin_editor(BM_WINDOW *, const BM_RECT, const wchar_t *);
 void bm_delwin(BM_WINDOW *);
-void bm_set_win_title(BM_WINDOW *, const wchar_t *);
+
+void bm_win_settitle(BM_WINDOW *, const wchar_t *);
 
 void bm_renderwin(BM_WINDOW *);
 
