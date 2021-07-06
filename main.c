@@ -44,21 +44,23 @@ int main(int argc, char *argv[]){
     getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
     getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
     p_win_root = bm_newwin_editor(rect_root, L"Root");
+    refresh();
     bm_renderwin(p_win_root);
-    getch();
+    //wgetch(p_win_root->p_win);
 
     p_win_right = bm_newwin_editor(rect_root, L"Sub");
     ret = bm_addsubwin(p_win_root, p_win_right, BM_WIN_SPLIT_DIR_HOR);
     bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);
-    getch();
+    //wgetch(p_win_root->p_win);
 
     p_win_rightbottom = bm_newwin_editor(rect_root, L"BottomRight");
     ret = bm_addsubwin(p_win_right, p_win_rightbottom, BM_WIN_SPLIT_DIR_VER);
-    bm_renderwin(p_win_rightbottom);
+    bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);
+    bm_renderwin(p_win_rightbottom);
 
-    getch();
+    wgetch(p_win_root->p_win);
 
 /*
     bm_mvwin(p_win_root, 0, 0);

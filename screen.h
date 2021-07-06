@@ -28,7 +28,7 @@
 #include "bmtypes.h"
 
 /* Max length of title string */
-#define BM_WIN_TITLE_MAXLEN 20
+#define BM_WIN_TITLE_MAXLEN 33
 
 /* 
     Minimum size of Editor 
@@ -71,7 +71,7 @@ int bm_addsubwin(
 void bm_setwin_title(BM_WINDOW *, const wchar_t *);
 
 /* Window Render */
-void bm_renderwin(BM_WINDOW *);
+int bm_renderwin(BM_WINDOW *);
 
 /* Resize, Move */
 int bm_mvwin(BM_WINDOW *, const int newy, const int newx);

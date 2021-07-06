@@ -3,3 +3,4 @@ bm
 *.o
 lintout
 tags
+debug

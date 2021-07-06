@@ -15,8 +15,12 @@ OBJ=screen.o main.o
 $(PROGRAM): $(OBJ)
 	$(CC) -o $@ $(OBJ) $(LIBS)
 
+debug: $(OBJ)
+	$(CC) -g -o $@ $(OBJ) $(LIBS)
+
+
 clean:
-	@rm -f $(PROGRAM) tags lintout *.o
+	@rm -f $(PROGRAM) tags lintout *.o debug
 
 tags: ${SRC}
 	@rm -f tags
