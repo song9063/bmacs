@@ -45,8 +45,7 @@ void bm_calc_half_winrect(
 }
 */
 
-/* Private functions */
-int bm_renderwin_frame(BM_WINDOW *p_bmwin);
+
 
 
 /* Public functions */
@@ -75,7 +74,12 @@ BM_WINDOW *bm_newwin_editor(const BM_RECT rect, const wchar_t *sz_title){
     min_size.h = BM_EDITOR_WIN_MIN_H;
     return bm_newwin(BM_WIN_TYPE_EDITOR, rect, sz_title, min_size);
 }
-
+BM_WINDOW *bm_newwin_filelist(const BM_RECT rect, const wchar_t *sz_title){
+    BM_SIZE min_size;
+    min_size.w = BM_EDITOR_WIN_MIN_W;
+    min_size.h = BM_EDITOR_WIN_MIN_H;
+    return bm_newwin(BM_WIN_TYPE_TEXTLIST, rect, sz_title, min_size);
+}
 int bm_addsubwin(
     BM_WINDOW *p_parent, BM_WINDOW *p_sub, 
     const BM_WIN_SPLIT_DIR dir){
@@ -107,6 +111,7 @@ int bm_addsubwin(
         p_old_next->p_prev = p_sub;
     }
     p_parent->p_next = p_sub;
+    p_parent->nextdir = dir;
     p_sub->p_prev = p_parent;
     p_sub->p_next = p_old_next;
     return OK;
@@ -128,8 +133,8 @@ void bm_delwin(BM_WINDOW *p_bmwin){
 void bm_setwin_title(BM_WINDOW *p_bmwin, const wchar_t *sz_title){
     size_t len = wcslen(sz_title);
     memset(p_bmwin->sz_title, '\0', sizeof(p_bmwin->sz_title));
-    if(len > BM_WIN_TITLE_MAXLEN){
-        len = BM_WIN_TITLE_MAXLEN;
+    if(len >= BM_WIN_TITLE_MAXLEN){
+        len = BM_WIN_TITLE_MAXLEN - 1;
     }
     wcsncpy(p_bmwin->sz_title, sz_title, len);
 }
@@ -138,28 +143,51 @@ int bm_renderwin(BM_WINDOW *p_bmwin){
     int n_ret;
     wclear(p_bmwin->p_win);
     n_ret = bm_renderwin_frame(p_bmwin);
+    if(n_ret != OK) return n_ret;
 
-    /*wmove(p_bmwin->p_win, 4, 4);*/
-    wrefresh(p_bmwin->p_win);
+    n_ret = bm_renderwin_stbar(p_bmwin);
+    if(n_ret != OK) return n_ret;
+
+    n_ret = wrefresh(p_bmwin->p_win);
 
     return n_ret;
 }
 
 int bm_renderwin_frame(BM_WINDOW *p_bmwin){
-    wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
-    size_t len;
-    int title_x;
-    int n_ret;
-    memset(sz_title, '\0', sizeof(sz_title));
-    len = wcslen(p_bmwin->sz_title);
-    if(len > (p_bmwin->rect.size.w)){
-        len = p_bmwin->rect.size.w;
+    int n_ret = OK;
+    if(p_bmwin->nextdir == BM_WIN_SPLIT_DIR_HOR){
+        n_ret = mvwvline(p_bmwin->p_win, 0, 
+            p_bmwin->rect.size.w-1, ACS_CKBOARD,
+            p_bmwin->rect.size.h-1);
     }
-    wcsncpy(sz_title, p_bmwin->sz_title, len);
-    title_x = (p_bmwin->rect.size.w-len)/2;
+    return n_ret;
+}
+int bm_renderwin_stbar(BM_WINDOW *p_bmwin){
+    /*
+     * [{Title} {ALL|nn%} {LINES}]
+     * */
+    wchar_t sz_buf[BM_WIN_STATUSBAR_MAXLEN];
+    size_t len;
+    int n_ret;
+    int bottomy = p_bmwin->rect.size.h-1;
+    memset(sz_buf, '\0', sizeof(sz_buf));
 
-    box(p_bmwin->p_win, 0 ,0);
-    n_ret = mvwprintw(p_bmwin->p_win, 1, 1, "%ls", sz_title);
+    len = wcslen(p_bmwin->sz_title);
+    if(len >= p_bmwin->rect.size.w){
+        len = p_bmwin->rect.size.w-1;
+    }
+    if(len >= BM_WIN_STATUSBAR_MAXLEN){
+        len = BM_WIN_STATUSBAR_MAXLEN;
+    }
+    wcsncpy(sz_buf, p_bmwin->sz_title, len);
+    swprintf(sz_buf, BM_WIN_STATUSBAR_MAXLEN, L"%ls All L%ld", sz_buf, 1);
+
+    n_ret = mvwprintw(p_bmwin->p_win, bottomy, 0, "%ls", sz_buf);
+    if(n_ret != OK) return n_ret;
+
+    wmove(p_bmwin->p_win, bottomy, 0);
+    wchgat(p_bmwin->p_win, -1, A_REVERSE, 0, NULL);
+
     return n_ret;
 }
 

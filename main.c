@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
     bm_renderwin(p_win_right);
     //wgetch(p_win_root->p_win);
 
-    p_win_rightbottom = bm_newwin_editor(rect_root, L"BottomRight");
+    p_win_rightbottom = bm_newwin_filelist(rect_root, L"BottomRight");
     ret = bm_addsubwin(p_win_right, p_win_rightbottom, BM_WIN_SPLIT_DIR_VER);
     bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);

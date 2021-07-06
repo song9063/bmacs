@@ -30,6 +30,8 @@
 /* Max length of title string */
 #define BM_WIN_TITLE_MAXLEN 33
 
+#define BM_WIN_STATUSBAR_MAXLEN 33
+
 /* 
     Minimum size of Editor 
     - Bottom status bar: 1 lines
@@ -54,6 +56,7 @@ typedef struct _BM_WINDOW {
 
     struct _BM_WINDOW *p_prev;
     struct _BM_WINDOW *p_next;
+    BM_WIN_SPLIT_DIR nextdir;
 } BM_WINDOW;
 
 
@@ -61,6 +64,7 @@ typedef struct _BM_WINDOW {
 BM_WINDOW *bm_newwin(const BM_WIN_TYPE, const BM_RECT, 
     const wchar_t *, const BM_SIZE); /* Normal window */
 BM_WINDOW *bm_newwin_editor(const BM_RECT, const wchar_t *);
+BM_WINDOW *bm_newwin_filelist(const BM_RECT, const wchar_t *);
 void bm_delwin(BM_WINDOW *);
 
 int bm_addsubwin(
@@ -72,6 +76,9 @@ void bm_setwin_title(BM_WINDOW *, const wchar_t *);
 
 /* Window Render */
 int bm_renderwin(BM_WINDOW *);
+
+int bm_renderwin_frame(BM_WINDOW *p_bmwin);
+int bm_renderwin_stbar(BM_WINDOW *p_bmwin);
 
 /* Resize, Move */
 int bm_mvwin(BM_WINDOW *, const int newy, const int newx);
