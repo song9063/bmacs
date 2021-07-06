@@ -43,10 +43,12 @@ int main(int argc, char *argv[]){
     /* Root Window */
     getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
     getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
+    rect_root.size.h--;
     p_win_root = bm_newwin_editor(rect_root, L"Root");
     refresh();
     bm_renderwin(p_win_root);
-    //wgetch(p_win_root->p_win);
+    bm_printinfo("c-h Get Help");
+    wgetch(p_win_root->p_win);
 
     p_win_right = bm_newwin_editor(rect_root, L"Sub");
     ret = bm_addsubwin(p_win_root, p_win_right, BM_WIN_SPLIT_DIR_HOR);
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]){
     bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);
     bm_renderwin(p_win_rightbottom);
-
+    bm_printinfo(NULL);
     wgetch(p_win_root->p_win);
 
 /*

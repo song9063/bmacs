@@ -280,3 +280,13 @@ int bm_test_winsize(BM_WINDOW *p_bmwin, const int h, const int w){
     return (p_bmwin->min_size.h <= h && p_bmwin->min_size.w <= w);
 }
 
+/* Info Text at Bottom */
+void bm_printinfo(const char *sz_text){
+    move(LINES-1, 0);
+    clrtoeol();
+
+    if(sz_text != NULL){
+        mvprintw(LINES-1, 0, sz_text);
+    }
+    refresh();
+}

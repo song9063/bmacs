@@ -93,4 +93,7 @@ void bm_calc_splitsize(const BM_WINDOW *, BM_RECT *,
     const BM_WIN_SPLIT_DIR);
 int bm_test_winsize(BM_WINDOW *, const int, const int);
 
+/* Info Text at Bottom */
+void bm_printinfo(const char *);
+
 #endif
