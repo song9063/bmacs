@@ -5,12 +5,12 @@ CFLAGS=-O2 $(WARNINGS) -g
 LIBS=-lncurses
 PROGRAM=bm
 
-SRC=main.c screen.c
+SRC=main.c screen.c buffer.c
 
 HDR=screen.h
 HDRPATH=-I/usr/local/opt/ncurses/include
 
-OBJ=screen.o main.o
+OBJ=screen.o main.o buffer.o
 
 $(PROGRAM): $(OBJ)
 	$(CC) -o $@ $(OBJ) $(LIBS)

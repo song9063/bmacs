@@ -26,6 +26,7 @@
 #include <string.h>
 #include <wchar.h>
 #include "bmtypes.h"
+#include "buffer.h"
 
 /* Max length of title string */
 #define BM_WIN_TITLE_MAXLEN 33
@@ -46,17 +47,30 @@ typedef enum _BM_WIN_SPLIT_DIR {
     BM_WIN_SPLIT_DIR_HOR      /* Horizontal */
 } BM_WIN_SPLIT_DIR;
 
+typedef enum _BM_WIN_TYPE {
+    BM_WIN_TYPE_EDITOR = 0, /* Editor */
+    BM_WIN_TYPE_TEXTLIST,
+    BM_WIN_TYPE_TERMINAL
+} BM_WIN_TYPE;
+
 typedef struct _BM_WINDOW {
     BM_WIN_TYPE wintype;
 
     WINDOW *p_win;
-    BM_RECT rect;
-    BM_SIZE min_size;
-    wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
 
     struct _BM_WINDOW *p_prev;
     struct _BM_WINDOW *p_next;
+
+    /* Dimensions */
+    BM_RECT rect;
+    BM_SIZE min_size;
     BM_WIN_SPLIT_DIR nextdir;
+
+    /* Status bar */
+    wchar_t sz_title[BM_WIN_TITLE_MAXLEN];
+
+    struct _BM_BUFFER *p_buf; /* Current BM_BUFFER */
+
 } BM_WINDOW;
 
 
@@ -66,6 +80,7 @@ BM_WINDOW *bm_newwin(const BM_WIN_TYPE, const BM_RECT,
 BM_WINDOW *bm_newwin_editor(const BM_RECT, const wchar_t *);
 BM_WINDOW *bm_newwin_filelist(const BM_RECT, const wchar_t *);
 void bm_delwin(BM_WINDOW *);
+void bm_delwins(BM_WINDOW *);
 
 int bm_addsubwin(
     BM_WINDOW *, BM_WINDOW *, 

@@ -58,7 +58,8 @@ BM_WINDOW *bm_newwin(
     BM_WINDOW *p_bmwin;
     p_win = newwin(rect.size.h, rect.size.w,
         rect.pos.y, rect.pos.x);
-    p_bmwin = malloc(sizeof(BM_WINDOW));
+    p_bmwin = (BM_WINDOW *)malloc(sizeof(BM_WINDOW));
+    if(p_bmwin == NULL) return NULL;
     p_bmwin->p_win = p_win;
     p_bmwin->rect = rect;
     p_bmwin->min_size = min_size;
@@ -128,6 +129,18 @@ void bm_delwin(BM_WINDOW *p_bmwin){
     delwin(p_bmwin->p_win);
     free(p_bmwin);
     p_bmwin = NULL;
+}
+
+void bm_delwins(BM_WINDOW *p_bmwin_head){
+    BM_WINDOW *p_temp;
+    while(p_bmwin_head){
+        p_temp = p_bmwin_head;
+        p_bmwin_head = p_bmwin_head->p_next;
+        delwin(p_temp->p_win);
+        free(p_temp);
+    }
+    clear();
+    refresh();
 }
 
 void bm_setwin_title(BM_WINDOW *p_bmwin, const wchar_t *sz_title){

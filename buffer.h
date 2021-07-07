@@ -19,25 +19,26 @@
     You should have received a copy of the GNU General Public License
     along with Bmacs.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef _BM_BMACS_TYPES_H_
-#define _BM_BMACS_TYPES_H_
+#ifndef _BM_BMACS_BUFFER_H_
+#define _BM_BMACS_BUFFER_H_
 
-#include <ncurses.h>
+#include <wchar.h>
+#include "bmtypes.h"
+#include "screen.h"
 
-typedef struct _BM_POS {
-    int y;
-    int x;
-} BM_POS;
+typedef struct _BM_WIN_REF_NODE {
+    struct _BM_WINDOW *p_bmwin;
+    struct _BM_WIN_REF_NODE *p_next;
+} BM_WIN_REF_NODE;
 
-typedef struct _BM_SIZE {
-    int h;
-    int w;
-} BM_SIZE;
+typedef struct _BM_BUFFER {
+    wchar_t *lines[100];
 
-typedef struct _BM_RECT {
-    BM_POS pos;
-    BM_SIZE size;
-} BM_RECT;
+    struct _BM_WIN_REF_NODE *p_winref;
+} BM_BUFFER;
 
+BM_BUFFER *bm_newbuff(void);
+void bm_delbuff(BM_BUFFER *);
+void bm_addbuff_ref(BM_BUFFER *, struct _BM_WINDOW *);
 
 #endif

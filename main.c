@@ -20,16 +20,20 @@
     along with Bmacs.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "screen.h"
+#include "buffer.h"
 #include <ncurses.h>
 #include <locale.h>
 
 int main(int argc, char *argv[]){
     BM_WINDOW *p_win_root;
-    BM_RECT rect_root;
+    BM_RECT rect_screen;
     int ret;
 
     BM_WINDOW *p_win_right;
     BM_WINDOW *p_win_rightbottom;
+
+    BM_BUFFER *p_buff_intro;
+    p_buff_intro = bm_newbuff();
 
     setlocale(LC_ALL,"");
 
@@ -41,27 +45,27 @@ int main(int argc, char *argv[]){
     refresh();
 
     /* Root Window */
-    getbegyx(stdscr, rect_root.pos.y, rect_root.pos.x);
-    getmaxyx(stdscr, rect_root.size.h, rect_root.size.w);
-    rect_root.size.h--;
-    p_win_root = bm_newwin_editor(rect_root, L"Root");
+    getbegyx(stdscr, rect_screen.pos.y, rect_screen.pos.x);
+    getmaxyx(stdscr, rect_screen.size.h, rect_screen.size.w);
+    rect_screen.size.h--;
+    p_win_root = bm_newwin_editor(rect_screen, L"Root");
     refresh();
     bm_renderwin(p_win_root);
     bm_printinfo("c-h Get Help");
     wgetch(p_win_root->p_win);
 
-    p_win_right = bm_newwin_editor(rect_root, L"Sub");
+    p_win_right = bm_newwin_editor(rect_screen, L"Sub");
     ret = bm_addsubwin(p_win_root, p_win_right, BM_WIN_SPLIT_DIR_HOR);
     bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);
     //wgetch(p_win_root->p_win);
 
-    p_win_rightbottom = bm_newwin_filelist(rect_root, L"BottomRight");
+    p_win_rightbottom = bm_newwin_filelist(rect_screen, L"BottomRight");
     ret = bm_addsubwin(p_win_right, p_win_rightbottom, BM_WIN_SPLIT_DIR_VER);
     bm_renderwin(p_win_root);
     bm_renderwin(p_win_right);
     bm_renderwin(p_win_rightbottom);
-    bm_printinfo(NULL);
+    bm_printinfo("c-h Get Help");
     wgetch(p_win_root->p_win);
 
 /*
@@ -72,9 +76,7 @@ int main(int argc, char *argv[]){
     getch();*/
 
 
-    bm_delwin(p_win_root);
-    bm_delwin(p_win_right);
-    bm_delwin(p_win_rightbottom);
+    bm_delwins(p_win_root);
     endwin();
 
     return 0;
