@@ -34,7 +34,7 @@ typedef struct _BM_WIN_REF_NODE {
 typedef struct _BM_BUFFER {
     wchar_t *lines[100];
 
-    struct _BM_WIN_REF_NODE *p_winref;
+    struct _BM_WIN_REF_NODE *p_winref; /* Screens those displaying this buffer.  */
 } BM_BUFFER;
 
 BM_BUFFER *bm_newbuff(void);

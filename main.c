@@ -38,6 +38,14 @@ int main(int argc, char *argv[]){
     setlocale(LC_ALL,"");
 
     initscr();
+
+    if(has_colors() == TRUE){
+        start_color();
+        init_color(COLOR_BLACK, 56, 103, 194);
+        init_pair(1, COLOR_WHITE, COLOR_BLACK);
+        wbkgd(stdscr, COLOR_PAIR(1));
+    }
+
     clear();
     noecho();
     cbreak();
