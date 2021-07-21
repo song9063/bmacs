@@ -1,6 +1,6 @@
 # Bmacs
-Bolt emacs editor
-Bmacs=Bolt-Emacs(Bolt is my dog's name)
+BoltEMACS editor
+(Bolt is my dog's name)
 
 Bmacs was written by Song Junwoo
 Bmacs (c) Copyright 2021 Song Junwoo

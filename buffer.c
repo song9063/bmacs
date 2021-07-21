@@ -56,10 +56,10 @@ void bm_addbuff_ref(BM_BUFFER *p_buf, struct _BM_WINDOW *p_bmwin){
     if(p_bmwin->p_buf != NULL){
         /* Todo */
         /* remove p_bmwin from p_bm_win->p_buf->p_winref */
-
+        
     }
 
     /* add p_bmwin to p_buf->p_winref */
 
-    
+
 }
