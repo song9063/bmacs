@@ -1,6 +1,7 @@
 /*
     This file is part of Bmacs
-    Bmacs=Bolt-Emacs(Bolt is my dog's name)
+    BoltEMACS(Bolt is my dog's name)
+
 
     Bmacs was written by Song Junwoo
     Bmacs (c) Copyright 2021 Song Junwoo
